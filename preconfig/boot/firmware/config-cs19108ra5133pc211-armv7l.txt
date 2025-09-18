@@ -31,7 +31,7 @@ max_framebuffers=2
 disable_fw_kms_setup=1
 
 # Run in 64-bit mode
-arm_64bit=1
+arm_64bit=0
 
 # Disable compensation for displays with overscan
 disable_overscan=1
@@ -71,6 +71,8 @@ dtoverlay=uart2-pi5
 dtoverlay=uart4-pi5
 # LED
 dtparam=act_led_trigger=heartbeat
+# SD1
+dtoverlay=sdio-pi5
 # WiFI
 dtparam=ant2
 # Touch
@@ -79,7 +81,7 @@ dtoverlay=goodix,interrupt=20,reset=21
 ##PWM
 #dtoverlay=pwm,pin=18,func=2
 ##GPIO
-gpio=18=op,dh
+gpio=18=op,dl
 #dtoverlay=pwm-backlight,pin=18,func=2,pwm_0
 # CAN
 dtparam=spi=on
@@ -90,9 +92,4 @@ dtoverlay=dwc2,dr_mode=host
 camera_auto_detect=0
 dtoverlay=imx708,cam0
 dtoverlay=i2c-at24,at24c32
-# KEY
-dtoverlay=gpio-key,gpio=27,label=KEY_VOLUMEUP,keycode=115
-dtoverlay=gpio-key,gpio=26,label=KEY_VOLUMEDOWN,keycode=114
-# 4G
-gpio=19=op,dh
 ########################Chipsee Config################################

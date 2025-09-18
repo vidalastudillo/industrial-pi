@@ -223,12 +223,33 @@ elif [ "X$CMVER" = "X4" ]; then
 	fi
 elif [ "X$CMVER" = "X5" ]; then
        	BUZZER=604
-	OUT="586 588 591 592"
-        IN="593 594 595 596"
-	RBOARD=`cspn`
+        RELAY=""
+        RBOARD=`cspn`
+        REV=`cat /opt/chipsee/.rev`
+        RREV=`csrev`
+	if [ "X$RBOARD" = "XCS12800RA5101A" ]; then
+                OUT=""
+                IN=""
+                RELAY="586"
+                # Reset 4G Module
+                pinctrl set 19 op dl
+                sleep 1
+                pinctrl set 19 op dh
+	else
+                OUT="586 588 591 592"
+                IN="593 594 595 596"
+                # Reset 4G Module
+                pinctrl set 6 op dl
+                sleep 1
+                pinctrl set 6 op dh
+	fi
         echo "Board should be $RBOARD"
 	CFGF="config-`echo ${RBOARD} | tr '[:upper:]' '[:lower:]'`.txt"
 	[ "x$BOARD" != "x$RBOARD" ] && ISSOMCHANGED=1 && cp ${FWLOC}/${CFGF} ${FWLOC}/config.txt
+	[ "x$REV" != "x$RREV" ] && ISSOMCHANGED=1
+	if [ "X$RBOARD" = "XCS19108RA5133P"  -a "X$RREV" = "XC211" -a "$ISSOMCHANGED" -eq 1 ]; then
+                cp ${FWLOC}/config-cs19108ra5133pc211.txt ${FWLOC}/config.txt
+        fi
 	if [ "X$RBOARD" = "XCS12720RA5050P" ]; then
 		BUZZER=588
 		OUT=""
@@ -303,8 +324,16 @@ if [ "x$BUZZER" != "x" ]; then
 	echo "GPIO Init done!!"
 fi
 
+# Relay
+if [ "x$RELAY" != "x" ]; then
+        [ ! -d /sys/class/gpio/gpio$RELAY ] && echo $RELAY > /sys/class/gpio/export
+        echo low > /sys/class/gpio/gpio$RELAY/direction
+        chmod a+w /sys/class/gpio/gpio$RELAY/value
+        ln -sf /sys/class/gpio/gpio$RELAY/value /dev/relay
+fi
+
 # Audio
-if [ "x$BOARD" == "xCS12800RA4101A" -o "x$BOARD" == "xCS12800RA5101A" ]; then
+if [ "x$BOARD" == "xCS12800RA4101A" ]; then
 is_1a=$(i2cdetect -y  1 0x1a 0x1a | egrep "(1a|UU)" | awk '{print $2}')
 overlay=""
 if [ "x${is_1a}" != "x" ]; then
